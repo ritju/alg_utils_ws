@@ -1,0 +1,54 @@
+# 仿真测试环境配置文件
+# Simulation test environment configuration
+
+# 环境变量设置
+environment:
+  CYCLONEDDS_URI: "file:///home/bainan/ros_ws/src/vehicle_tracker/config/dds.xml"
+
+# 工作空间 source 路径
+workspaces:
+  ritju_ws: /home/sherlock/codes/ritju_ws/install/setup.bash
+  utils_ws: /home/sherlock/codes/utils_ws/install/setup.bash
+  nav2_ws: /home/sherlock/codes/nav2_ws/install/setup.bash
+
+# Rosbag 回放配置
+rosbag:
+  # 默认 bag 文件路径
+  default_bag_path: ~/data/rosbags/vision_lidar/recording_20260402_085745
+  # 默认回放的 topics
+  default_topics:
+    - /front_scan
+    - /back_scan
+    - /garage_polygons
+    - /tf
+    - /tf_static
+    - /odom
+    - /joint_states
+    - /map
+    - /initialpose
+    - /cmd_vel
+    - /parameter_events
+  # 是否使用仿真时间
+  use_sim_time: true
+  # 是否发布 clock
+  publish_clock: true
+
+# 相机数据配置
+cameras:
+  front:
+    video_path: /home/sherlock/data/videos/cac07407-0eb1c8bf.mov
+    raw_topic: /rgb_camera_front/image_raw
+    compressed_topic: /rgb_camera_front/compressed
+  back:
+    video_path: /home/sherlock/data/videos/cac07407-0eb1c8bf.mov
+    raw_topic: /rgb_camera_back/image_raw
+    compressed_topic: /rgb_camera_back/compressed
+
+# 激光雷达模拟配置
+lidar_simulation:
+  front:
+    config_file: config/world_to_scan_front.json
+    use_sim_time: true
+  back:
+    config_file: config/world_to_scan_back.json
+    use_sim_time: true

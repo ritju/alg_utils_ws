@@ -1,0 +1,19 @@
+{
+  "world_to_scan": {
+    "data_source": "laser_scan",
+    "world_x": 4.393341541290283,
+    "world_y": 33.22430419921875,
+    "world_z": 1,
+    "world_frame": "map",
+    "target_frame": "front_rplidar",
+    "scan_range": 1.5,
+    "num_points": 3600,
+    "all_clear": false,
+    "circle_radius": 0.5,
+    "range_min": 0.0,
+    "range_max": 10.0,
+    "cloud_height": 1800,
+    "cloud_width": 32,
+    "scan_topic": "/front_scan"
+  }
+}
