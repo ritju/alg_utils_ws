@@ -21,3 +21,11 @@ Thumbs.db
 *.swp
 *.swo
 .qwen
+
+# Python-generated files
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv

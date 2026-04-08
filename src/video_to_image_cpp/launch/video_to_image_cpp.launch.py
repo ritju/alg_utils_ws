@@ -7,10 +7,16 @@ Example usage:
   ros2 launch video_to_image_cpp video_to_image_cpp.launch.py video_path:=/path/to/video.mov publish_compressed:=true
 """
 
+import uuid
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+
+
+def generate_unique_id():
+    """Generate a short unique identifier."""
+    return uuid.uuid4().hex[:8]
 
 
 def generate_launch_description():
@@ -83,11 +89,22 @@ def generate_launch_description():
         description='Timestamp offset in seconds (negative to subtract delay)'
     )
 
+    node_name_arg = DeclareLaunchArgument(
+        'node_name',
+        default_value='',
+        description='Custom node name (empty for auto-generated unique name)'
+    )
+
+    # Generate unique node name
+    unique_id = generate_unique_id()
+    node_name = LaunchConfiguration('node_name')
+    # Use custom name if provided, otherwise use unique default
+
     # Create node
     video_to_image_node = Node(
         package='video_to_image_cpp',
         executable='video_to_image_node',
-        name='video_to_image_node',
+        name=['video_to_image_node_', unique_id],
         output='screen',
         parameters=[{
             'video_path': LaunchConfiguration('video_path'),
@@ -116,5 +133,6 @@ def generate_launch_description():
         frame_id_arg,
         use_sim_time_arg,
         timestamp_offset_arg,
+        node_name_arg,
         video_to_image_node,
     ])

@@ -14,6 +14,7 @@
     "range_max": 10.0,
     "cloud_height": 1800,
     "cloud_width": 32,
-    "scan_topic": "/back_scan"
+    "scan_topic": "/back_scan",
+    "timer_interval_ms": 33
   }
 }
