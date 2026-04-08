@@ -1,0 +1,17 @@
+[project]
+name = "ros-perf-mon"
+version = "0.1.0"
+description = "Performance monitoring toolkit for ROS C++ nodes in Docker containers"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "docker>=6.0.0",
+    "pandas>=2.0.0",
+    "pyarrow>=14.0.0",
+]
+
+[project.scripts]
+ros-perf-mon = "ros_perf_mon.cli:main"
+
+[tool.uv]
+package = true
