@@ -80,6 +80,7 @@ class SimQuickload:
         clock: bool = True,
         loop: Optional[bool] = None,
         rate: Optional[float] = None,
+        start_offset: Optional[float] = None,
         clock_update_rate: Optional[int] = None,
     ) -> subprocess.Popen:
         """启动 rosbag 回放
@@ -90,6 +91,7 @@ class SimQuickload:
             clock: 是否发布 clock
             loop: 是否循环播放，None 则从配置读取
             rate: 播放速率，None 则从配置读取
+            start_offset: 播放起始时间偏移（秒），None 则从配置读取
             clock_update_rate: clock 更新频率，None 则从配置读取
         """
         rosbag_config = self.config.get("rosbag", {})
@@ -106,6 +108,10 @@ class SimQuickload:
             rate = float(rosbag_config.get("rate", 1.0))
         else:
             rate = float(rate)
+        if start_offset is None:
+            start_offset = rosbag_config.get("start_offset", 0.0)
+        else:
+            start_offset = float(start_offset)
         if clock_update_rate is None:
             clock_update_rate = rosbag_config.get("clock_update_rate", 100)
 
@@ -120,10 +126,14 @@ class SimQuickload:
         if loop:
             cmd += " --loop"
         cmd += f" --rate {rate}"
+        if start_offset > 0:
+            cmd += f" --start-offset {start_offset}"
 
         print(f"启动 rosbag 回放: {bag_path}")
         print(f"Topics: {topics_str}")
         print(f"播放速率: {rate}")
+        if start_offset > 0:
+            print(f"起始偏移: {start_offset}秒")
         if loop:
             print(f"循环播放: 开启")
         print(f"命令: {cmd}")
@@ -268,6 +278,7 @@ class SimQuickload:
         use_sim_time: Optional[bool] = None,
         loop: Optional[bool] = None,
         rate: Optional[float] = None,
+        start_offset: Optional[float] = None,
     ) -> None:
         """启动所有组件
 
@@ -280,6 +291,7 @@ class SimQuickload:
             use_sim_time: 是否使用仿真时间
             loop: rosbag 是否循环播放
             rate: rosbag 播放速率
+            start_offset: rosbag 播放起始时间偏移（秒）
         """
         print("=" * 50)
         print("启动仿真测试环境")
@@ -289,7 +301,7 @@ class SimQuickload:
         set_environment(self.config)
 
         # 启动 rosbag 回放
-        self.start_rosbag_playback(bag_path=bag_path, loop=loop, rate=rate)
+        self.start_rosbag_playback(bag_path=bag_path, loop=loop, rate=rate, start_offset=start_offset)
 
         # 启动前后相机
         self.start_camera("front", mode=camera_mode, frame_rate=frame_rate, width=width, height=height, use_sim_time=use_sim_time)
@@ -396,6 +408,13 @@ def main():
         type=float,
         default=None,
         help="rosbag 播放速率 (默认: 1.0)",
+    )
+
+    parser.add_argument(
+        "--start-offset",
+        type=float,
+        default=None,
+        help="rosbag 播放起始时间偏移（秒），默认从配置文件读取",
     )
 
     parser.add_argument(
@@ -509,8 +528,10 @@ def main():
     rosbag_config = config.get("rosbag", {})
     default_loop = rosbag_config.get("loop", False)
     default_rate = float(rosbag_config.get("rate", 1.0))
+    default_start_offset = float(rosbag_config.get("start_offset", 0.0))
     loop = args.loop if args.loop else default_loop
     rate = float(args.rate) if args.rate else default_rate
+    start_offset = float(args.start_offset) if args.start_offset else default_start_offset
 
     # 从配置文件获取默认值
     default_frame_rate = float(cameras_config.get("default_frame_rate", 30.0))
@@ -553,10 +574,11 @@ def main():
             use_sim_time=use_sim_time,
             loop=loop,
             rate=rate,
+            start_offset=start_offset,
         )
     else:
         if args.bag_only or args.bag:
-            manager.start_rosbag_playback(bag_path=args.bag_path, loop=loop, rate=rate)
+            manager.start_rosbag_playback(bag_path=args.bag_path, loop=loop, rate=rate, start_offset=start_offset)
 
         if args.camera:
             manager.start_camera(args.camera, mode=camera_mode, frame_rate=frame_rate, width=width, height=height, use_sim_time=use_sim_time)

@@ -23,6 +23,12 @@ def generate_launch_description():
     """Generate launch description for video_to_image_cpp node."""
 
     # Declare launch arguments
+    input_source_arg = DeclareLaunchArgument(
+        'input_source',
+        default_value='compress_topic',
+        description='Input source type: "video" for video file, "compress_topic" for compressed image topic'
+    )
+
     video_path_arg = DeclareLaunchArgument(
         'video_path',
         default_value='',
@@ -43,7 +49,7 @@ def generate_launch_description():
 
     compressed_topic_arg = DeclareLaunchArgument(
         'compressed_topic',
-        default_value='/camera/image_raw/compressed',
+        default_value='/rgb_camera_front/compressed',
         description='Output topic for compressed images'
     )
 
@@ -107,6 +113,7 @@ def generate_launch_description():
         name=['video_to_image_node_', unique_id],
         output='screen',
         parameters=[{
+            'input_source': LaunchConfiguration('input_source'),
             'video_path': LaunchConfiguration('video_path'),
             'output_topic': LaunchConfiguration('output_topic'),
             'publish_compressed': LaunchConfiguration('publish_compressed'),
@@ -122,6 +129,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        input_source_arg,
         video_path_arg,
         output_topic_arg,
         publish_compressed_arg,

@@ -4,6 +4,7 @@
  *
  * Converts video files to sensor_msgs::msg::Image or CompressedImage
  * and publishes to specified topics with timestamps from /clock.
+ * Also supports converting compressed image topics to raw image topics.
  */
 
 #include <rclcpp/rclcpp.hpp>
@@ -23,6 +24,7 @@ public:
     VideoToImageNode() : Node("video_to_image_node")
     {
         // Declare parameters
+        this->declare_parameter("input_source", "video");  // "video" or "compress_topic"
         this->declare_parameter("video_path", "");
         this->declare_parameter("output_topic", "/camera/image_raw");
         this->declare_parameter("publish_compressed", false);
@@ -36,6 +38,7 @@ public:
         this->declare_parameter("loan", false);
 
         // Get parameters
+        input_source_ = this->get_parameter("input_source").as_string();
         video_path_ = this->get_parameter("video_path").as_string();
         output_topic_ = this->get_parameter("output_topic").as_string();
         publish_compressed_ = this->get_parameter("publish_compressed").as_bool();
@@ -48,6 +51,34 @@ public:
         timestamp_offset_ = this->get_parameter("timestamp_offset").as_double();
         loan_ = this->get_parameter("loan").as_bool();
 
+        // Create QoS profile
+        rclcpp::QoS qos_profile(3);
+        qos_profile.reliability(rclcpp::ReliabilityPolicy::BestEffort);
+        qos_profile.durability(rclcpp::DurabilityPolicy::Volatile);
+        qos_profile.history(rclcpp::HistoryPolicy::KeepLast);
+
+        if (input_source_ == "compress_topic")
+        {
+            // Mode: compressed image topic -> raw image topic
+            setup_compress_topic_mode(qos_profile);
+        }
+        else
+        {
+            // Mode: video file -> image topic (default)
+            setup_video_mode(qos_profile);
+        }
+
+        bool use_sim_time = this->get_parameter("use_sim_time").as_bool();
+        RCLCPP_INFO(this->get_logger(), "use_sim_time: %s", use_sim_time ? "true" : "false");
+        if (use_sim_time)
+        {
+            RCLCPP_INFO(this->get_logger(), "Using /clock topic for timestamps");
+        }
+        RCLCPP_INFO(this->get_logger(), "Video to Image node started (input_source: %s)", input_source_.c_str());
+    }
+
+    void setup_video_mode(const rclcpp::QoS &qos_profile)
+    {
         // Validate video path
         if (video_path_.empty())
         {
@@ -60,12 +91,6 @@ public:
             RCLCPP_ERROR(this->get_logger(), "Video file not found: %s", video_path_.c_str());
             throw std::runtime_error("Video file not found: " + video_path_);
         }
-
-        // Create publishers with volatile QoS
-        rclcpp::QoS qos_profile(3);
-        qos_profile.reliability(rclcpp::ReliabilityPolicy::BestEffort);
-        qos_profile.durability(rclcpp::DurabilityPolicy::Volatile);
-        qos_profile.history(rclcpp::HistoryPolicy::KeepLast);
 
         if (publish_compressed_)
         {
@@ -114,16 +139,22 @@ public:
             std::chrono::duration<double>(frame_interval_),
             std::bind(&VideoToImageNode::timer_callback, this));
 
-        // Frame counter for timing
         frame_count_ = 0;
+    }
 
-        bool use_sim_time = this->get_parameter("use_sim_time").as_bool();
-        RCLCPP_INFO(this->get_logger(), "use_sim_time: %s", use_sim_time ? "true" : "false");
-        if (use_sim_time)
-        {
-            RCLCPP_INFO(this->get_logger(), "Using /clock topic for timestamps");
-        }
-        RCLCPP_INFO(this->get_logger(), "Video to Image node started");
+    void setup_compress_topic_mode(const rclcpp::QoS &qos_profile)
+    {
+        // Publisher for raw images
+        image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>(
+            output_topic_, qos_profile);
+        RCLCPP_INFO(this->get_logger(), "Publishing raw images to: %s", output_topic_.c_str());
+
+        // Subscriber for compressed images
+        compressed_subscriber_ = this->create_subscription<sensor_msgs::msg::CompressedImage>(
+            compressed_topic_, qos_profile,
+            std::bind(&VideoToImageNode::compressed_image_callback, this, std::placeholders::_1));
+        RCLCPP_INFO(this->get_logger(), "Subscribing to compressed images from: %s",
+                    compressed_topic_.c_str());
     }
 
     ~VideoToImageNode()
@@ -182,6 +213,25 @@ private:
         }
 
         frame_count_++;
+    }
+
+    void compressed_image_callback(const sensor_msgs::msg::CompressedImage::SharedPtr msg)
+    {
+        // Decode compressed image using cv_bridge
+        cv_bridge::CvImagePtr cv_ptr;
+        try
+        {
+            cv_ptr = cv_bridge::toCvCopy(msg);
+        }
+        catch (const cv_bridge::Exception &e)
+        {
+            RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
+            return;
+        }
+
+        // Convert to Image message and publish
+        sensor_msgs::msg::Image::SharedPtr image_msg = cv_ptr->toImageMsg();
+        image_publisher_->publish(*image_msg);
     }
 
     void publish_raw_image(const cv::Mat &frame, const rclcpp::Time &timestamp)
@@ -250,6 +300,7 @@ private:
     }
 
     // Parameters
+    std::string input_source_;
     std::string video_path_;
     std::string output_topic_;
     bool publish_compressed_;
@@ -277,6 +328,9 @@ private:
     // Publishers
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr image_publisher_;
     rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_publisher_;
+
+    // Subscriber for compressed image input
+    rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_subscriber_;
 };
 
 int main(int argc, char **argv)
