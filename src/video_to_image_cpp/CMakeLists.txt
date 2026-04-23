@@ -45,6 +45,11 @@ install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )
 
+# Install config files
+install(DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
+
 # Install resource files
 install(DIRECTORY resource
   DESTINATION share/${PROJECT_NAME}

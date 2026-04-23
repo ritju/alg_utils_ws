@@ -14,7 +14,7 @@ workspaces:
 # Rosbag 回放配置
 rosbag:
   # 默认 bag 文件路径
-  default_bag_path: ~/data/rosbags/vision_lidar/rosbag2_2026_03_02-17_19_25
+  default_bag_path: ~/data/rosbags/vision_lidar/rosbag2_2026_04_16-15_35_07
   # 默认回放的 topics
   default_topics:
     - /tf

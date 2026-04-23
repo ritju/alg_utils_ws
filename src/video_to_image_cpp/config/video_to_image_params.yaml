@@ -1,0 +1,44 @@
+/**:
+  ros__parameters:
+    # Input source type: "video" for video file, "compress_topic" for compressed image topic
+    input_source: "compress_topic"
+
+    # Video file paths (array)
+    # Example for single video: ["video1.mp4"]
+    # Example for multiple videos: ["video1.mp4", "video2.mp4", "video3.mp4"]
+    video_path: ["", ""]
+
+    # Output topics for raw images (array)
+    # Must have same length as video_path for "video" mode
+    # Must have same length as compressed_topic for "compress_topic" mode
+    output_topic: ["rgb_camera_front/image_raw","rgb_camera_back/image_raw"]
+
+    # Whether to publish compressed images instead of raw images (video mode only)
+    publish_compressed: false
+
+    # Compressed topics (array)
+    # For "video" mode: output topics for compressed images, must match video_path length
+    # For "compress_topic" mode: input topics to subscribe, must match output_topic length
+    compressed_topic: ["rgb_camera_front/compressed","rgb_camera_back/compressed"]
+
+    # Frame rate for publishing images (Hz)
+    frame_rate: 30.0
+
+    # Target image resolution
+    width: 640
+    height: 480
+
+    # Whether to loop the video when it ends
+    loop: true
+
+    # Frame ID for image header
+    frame_id: "camera"
+
+    # Timestamp offset in seconds (added to /clock time)
+    timestamp_offset: 0.01
+
+    # Use loaned messages for publishing (can improve performance)
+    loan: false
+
+    # Use simulation time from /clock topic
+    use_sim_time: true

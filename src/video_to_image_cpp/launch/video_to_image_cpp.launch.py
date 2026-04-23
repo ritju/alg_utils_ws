@@ -2,16 +2,23 @@
 """
 Launch file for video_to_image_cpp node.
 
+Uses YAML config file as the primary configuration source.
+All parameters should be configured in the YAML file.
+
 Example usage:
-  ros2 launch video_to_image_cpp video_to_image_cpp.launch.py video_path:=/path/to/video.mov
-  ros2 launch video_to_image_cpp video_to_image_cpp.launch.py video_path:=/path/to/video.mov publish_compressed:=true
+  Default config:
+    ros2 launch video_to_image_cpp video_to_image_cpp.launch.py
+
+  Custom config file:
+    ros2 launch video_to_image_cpp video_to_image_cpp.launch.py config_file:=/path/to/custom_params.yaml
 """
 
 import uuid
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_unique_id():
@@ -21,126 +28,27 @@ def generate_unique_id():
 
 def generate_launch_description():
     """Generate launch description for video_to_image_cpp node."""
+    pkg_share = FindPackageShare('video_to_image_cpp')
+    default_config = PathJoinSubstitution([pkg_share, 'config', 'video_to_image_params.yaml'])
 
     # Declare launch arguments
-    input_source_arg = DeclareLaunchArgument(
-        'input_source',
-        default_value='compress_topic',
-        description='Input source type: "video" for video file, "compress_topic" for compressed image topic'
+    config_file_arg = DeclareLaunchArgument(
+        'config_file',
+        default_value=default_config,
+        description='Path to YAML config file (default: package config/video_to_image_params.yaml)'
     )
 
-    video_path_arg = DeclareLaunchArgument(
-        'video_path',
-        default_value='',
-        description='Path to the video file (.mov)'
-    )
-
-    output_topic_arg = DeclareLaunchArgument(
-        'output_topic',
-        default_value='/rgb_camera_front/image_raw',
-        description='Output topic for raw images'
-    )
-
-    publish_compressed_arg = DeclareLaunchArgument(
-        'publish_compressed',
-        default_value='false',
-        description='Whether to publish compressed images'
-    )
-
-    compressed_topic_arg = DeclareLaunchArgument(
-        'compressed_topic',
-        default_value='/rgb_camera_front/compressed',
-        description='Output topic for compressed images'
-    )
-
-    frame_rate_arg = DeclareLaunchArgument(
-        'frame_rate',
-        default_value='12.0',
-        description='Frame rate for publishing images'
-    )
-
-    width_arg = DeclareLaunchArgument(
-        'width',
-        default_value='640',
-        description='Target image width'
-    )
-
-    height_arg = DeclareLaunchArgument(
-        'height',
-        default_value='480',
-        description='Target image height'
-    )
-
-    loop_arg = DeclareLaunchArgument(
-        'loop',
-        default_value='true',
-        description='Whether to loop the video'
-    )
-
-    frame_id_arg = DeclareLaunchArgument(
-        'frame_id',
-        default_value='camera',
-        description='Frame ID for image header'
-    )
-
-    use_sim_time_arg = DeclareLaunchArgument(
-        'use_sim_time',
-        default_value='true',
-        description='Use /clock topic for timestamps (simulation time)'
-    )
-
-    timestamp_offset_arg = DeclareLaunchArgument(
-        'timestamp_offset',
-        default_value='-0.03',
-        description='Timestamp offset in seconds (negative to subtract delay)'
-    )
-
-    node_name_arg = DeclareLaunchArgument(
-        'node_name',
-        default_value='',
-        description='Custom node name (empty for auto-generated unique name)'
-    )
-
-    # Generate unique node name
     unique_id = generate_unique_id()
-    node_name = LaunchConfiguration('node_name')
-    # Use custom name if provided, otherwise use unique default
 
-    # Create node
     video_to_image_node = Node(
         package='video_to_image_cpp',
         executable='video_to_image_node',
-        name=['video_to_image_node_', unique_id],
+        name=f'video_to_image_node_{unique_id}',
         output='screen',
-        parameters=[{
-            'input_source': LaunchConfiguration('input_source'),
-            'video_path': LaunchConfiguration('video_path'),
-            'output_topic': LaunchConfiguration('output_topic'),
-            'publish_compressed': LaunchConfiguration('publish_compressed'),
-            'compressed_topic': LaunchConfiguration('compressed_topic'),
-            'frame_rate': LaunchConfiguration('frame_rate'),
-            'width': LaunchConfiguration('width'),
-            'height': LaunchConfiguration('height'),
-            'loop': LaunchConfiguration('loop'),
-            'frame_id': LaunchConfiguration('frame_id'),
-            'use_sim_time': LaunchConfiguration('use_sim_time'),
-            'timestamp_offset': LaunchConfiguration('timestamp_offset'),
-        }]
+        parameters=[LaunchConfiguration('config_file')]
     )
 
     return LaunchDescription([
-        input_source_arg,
-        video_path_arg,
-        output_topic_arg,
-        publish_compressed_arg,
-        compressed_topic_arg,
-        frame_rate_arg,
-        width_arg,
-        height_arg,
-        loop_arg,
-        frame_id_arg,
-        use_sim_time_arg,
-        timestamp_offset_arg,
-        node_name_arg,
+        config_file_arg,
         video_to_image_node,
     ])
