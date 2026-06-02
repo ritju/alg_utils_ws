@@ -81,7 +81,8 @@ class SimQuickload:
         loop: Optional[bool] = None,
         rate: Optional[float] = None,
         start_offset: Optional[float] = None,
-        clock_update_rate: Optional[int] = None,
+        start_paused: Optional[bool] = None,
+        qos_profile_overrides_path: Optional[str] = None,
     ) -> subprocess.Popen:
         """启动 rosbag 回放
 
@@ -92,7 +93,8 @@ class SimQuickload:
             loop: 是否循环播放，None 则从配置读取
             rate: 播放速率，None 则从配置读取
             start_offset: 播放起始时间偏移（秒），None 则从配置读取
-            clock_update_rate: clock 更新频率，None 则从配置读取
+            start_paused: 启动时是否暂停，None 则从配置读取
+            qos_profile_overrides_path: QoS profile 配置文件路径，None 则从配置读取
         """
         rosbag_config = self.config.get("rosbag", {})
 
@@ -112,8 +114,10 @@ class SimQuickload:
             start_offset = rosbag_config.get("start_offset", 0.0)
         else:
             start_offset = float(start_offset)
-        if clock_update_rate is None:
-            clock_update_rate = rosbag_config.get("clock_update_rate", 100)
+        if start_paused is None:
+            start_paused = rosbag_config.get("start_paused", False)
+        if qos_profile_overrides_path is None:
+            qos_profile_overrides_path = rosbag_config.get("qos_profile_overrides_path", None)
 
         workspace = self.config.get("workspaces", {}).get("ritju_ws", "")
         topics_str = " ".join(topics)
@@ -128,12 +132,20 @@ class SimQuickload:
         cmd += f" --rate {rate}"
         if start_offset > 0:
             cmd += f" --start-offset {start_offset}"
+        if start_paused:
+            cmd += " --start-paused"
+        if qos_profile_overrides_path:
+            cmd += f" --qos-profile-overrides-path {qos_profile_overrides_path}"
 
         print(f"启动 rosbag 回放: {bag_path}")
         print(f"Topics: {topics_str}")
         print(f"播放速率: {rate}")
         if start_offset > 0:
             print(f"起始偏移: {start_offset}秒")
+        if start_paused:
+            print(f"启动暂停: 开启")
+        if qos_profile_overrides_path:
+            print(f"QoS 配置文件: {qos_profile_overrides_path}")
         if loop:
             print(f"循环播放: 开启")
         print(f"命令: {cmd}")
@@ -279,6 +291,8 @@ class SimQuickload:
         loop: Optional[bool] = None,
         rate: Optional[float] = None,
         start_offset: Optional[float] = None,
+        start_paused: Optional[bool] = None,
+        qos_profile_overrides_path: Optional[str] = None,
     ) -> None:
         """启动所有组件
 
@@ -292,6 +306,8 @@ class SimQuickload:
             loop: rosbag 是否循环播放
             rate: rosbag 播放速率
             start_offset: rosbag 播放起始时间偏移（秒）
+            start_paused: rosbag 启动时是否暂停
+            qos_profile_overrides_path: rosbag QoS profile 配置文件路径
         """
         print("=" * 50)
         print("启动仿真测试环境")
@@ -301,7 +317,14 @@ class SimQuickload:
         set_environment(self.config)
 
         # 启动 rosbag 回放
-        self.start_rosbag_playback(bag_path=bag_path, loop=loop, rate=rate, start_offset=start_offset)
+        self.start_rosbag_playback(
+            bag_path=bag_path,
+            loop=loop,
+            rate=rate,
+            start_offset=start_offset,
+            start_paused=start_paused,
+            qos_profile_overrides_path=qos_profile_overrides_path,
+        )
 
         # 启动前后相机
         self.start_camera("front", mode=camera_mode, frame_rate=frame_rate, width=width, height=height, use_sim_time=use_sim_time)
@@ -418,6 +441,20 @@ def main():
     )
 
     parser.add_argument(
+        "--start-paused",
+        action="store_true",
+        default=None,
+        help="rosbag 启动时暂停",
+    )
+
+    parser.add_argument(
+        "--qos-profile-overrides-path",
+        type=str,
+        default=None,
+        help="rosbag QoS profile 配置文件路径",
+    )
+
+    parser.add_argument(
         "--cameras",
         action="store_true",
         help="启动前后相机",
@@ -529,9 +566,13 @@ def main():
     default_loop = rosbag_config.get("loop", False)
     default_rate = float(rosbag_config.get("rate", 1.0))
     default_start_offset = float(rosbag_config.get("start_offset", 0.0))
+    default_start_paused = rosbag_config.get("start_paused", False)
+    default_qos_profile_overrides_path = rosbag_config.get("qos_profile_overrides_path", None)
     loop = args.loop if args.loop else default_loop
     rate = float(args.rate) if args.rate else default_rate
     start_offset = float(args.start_offset) if args.start_offset else default_start_offset
+    start_paused = args.start_paused if args.start_paused else default_start_paused
+    qos_profile_overrides_path = args.qos_profile_overrides_path if args.qos_profile_overrides_path else default_qos_profile_overrides_path
 
     # 从配置文件获取默认值
     default_frame_rate = float(cameras_config.get("default_frame_rate", 30.0))
@@ -575,10 +616,19 @@ def main():
             loop=loop,
             rate=rate,
             start_offset=start_offset,
+            start_paused=start_paused,
+            qos_profile_overrides_path=qos_profile_overrides_path,
         )
     else:
         if args.bag_only or args.bag:
-            manager.start_rosbag_playback(bag_path=args.bag_path, loop=loop, rate=rate, start_offset=start_offset)
+            manager.start_rosbag_playback(
+                bag_path=args.bag_path,
+                loop=loop,
+                rate=rate,
+                start_offset=start_offset,
+                start_paused=start_paused,
+                qos_profile_overrides_path=qos_profile_overrides_path,
+            )
 
         if args.camera:
             manager.start_camera(args.camera, mode=camera_mode, frame_rate=frame_rate, width=width, height=height, use_sim_time=use_sim_time)

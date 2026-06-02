@@ -14,16 +14,30 @@ workspaces:
 # Rosbag 回放配置
 rosbag:
   # 默认 bag 文件路径
-  default_bag_path: ~/data/rosbags/vision_lidar/rosbag2_2026_04_16-15_35_07
+  # 一辆运动
+  #default_bag_path: ~/data/rosbags/vision_lidar/rosbag2_2026_04_16-15_35_07
+  #连续多辆无运动
+  #default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk30/bag_recordings/rosbag2_2026_04_27-15_17_46
+  #动态camera information
+  default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk37/bag_recordings/rosbag2_2026_05_09-15_55_23
+  # 深度相机_断裂
+  # default_bag_path: ~/data/rosbags/depth_cam/rosbag2_2026_05_08-17_07_09
+  # 深度相机_初始弯
+  # default_bag_path: ~/data/rosbags/depth_cam/rosbag2_2026_05_22-10_25_32
+  # 深度相机_拐弯
+  # default_bag_path: ~/data/rosbags/depth_cam/rosbag2_2026_05_22-10_34_50
   # 默认回放的 topics
   default_topics:
     - /tf
     - /tf_static
-    - /lidar_car_points
+      #- /lidar_car_points
     - /rgb_camera_front/compressed
     - /rgb_camera_back/compressed
     - /front_scan
     - /back_scan
+    - /rgb_camera_front/camera_info
+    - /rgb_camera_back/camera_info
+    - /camera1/depth/points
   # 是否使用仿真时间
   use_sim_time: true
   # 是否发布 clock
@@ -31,7 +45,13 @@ rosbag:
   # 是否循环播放
   loop: true
   # 播放速率 (1.0 = 正常速度)
-  rate: 10
+  rate: 1.0
+  # 播放起始时间偏移（秒）
+  start_offset: 0.0
+  # 启动时是否暂停
+  start_paused: true
+  # QoS profile 配置文件路径（可选）
+  qos_profile_overrides_path: /home/sherlock/codes/utils_ws/src/bn_sim_quickload/bn_sim_quickload/config/qos-profile.yaml
 
 # 相机数据配置
 cameras:

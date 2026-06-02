@@ -1,0 +1,58 @@
+# QoS Profile Overrides for ros2 bag play
+# 此文件用于覆盖 ros2 bag play 的 QoS 配置
+# 参考: https://docs.ros.org/en/rolling/Concepts/About-Quality-of-Service-Settings.html
+
+# QoS 配置格式
+# topic:
+#   qos_profile:
+#     history: keep_last | keep_all
+#     depth: <int> (仅当 history=keep_last 时需要)
+#     reliability: reliable | best_effort
+#     durability: transient_local | volatile
+#     deadline:
+#       nsec: <int>
+#       sec: <int>
+#     lifespan:
+#       nsec: <int>
+#       sec: <int>
+#     liveliness: automatic | manual_by_topic
+#     liveliness_lease_duration:
+#       nsec: <int>
+#       sec: <int>
+
+# 示例配置
+/rgb_camera_front/compressed:
+  history: keep_last
+  depth: 3
+  reliability: best_effort
+  durability: volatile
+
+/rgb_camera_back/compressed:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+
+/rgb_camera_front/camera_info:
+  history: keep_last
+  depth: 3
+  reliability: best_effort
+  durability: volatile
+
+/rgb_camera_back/camera_info:
+  history: keep_last
+  depth: 3
+  reliability: best_effort
+  durability: volatile
+
+/front_scan:
+  history: keep_last
+  depth: 5
+  reliability: best_effort
+  durability: volatile
+
+/back_scan:
+  history: keep_last
+  depth: 5
+  reliability: best_effort
+  durability: volatile
