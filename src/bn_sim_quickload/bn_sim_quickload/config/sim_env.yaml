@@ -15,22 +15,53 @@ workspaces:
 rosbag:
   # 默认 bag 文件路径
   # 一辆运动
-  #default_bag_path: ~/data/rosbags/vision_lidar/rosbag2_2026_04_16-15_35_07
-  #连续多辆无运动
-  #default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk30/bag_recordings/rosbag2_2026_04_27-15_17_46
-  #动态camera information
-  default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk37/bag_recordings/rosbag2_2026_05_09-15_55_23
+  # default_bag_path: ~/data/rosbags/vision_lidar/rosbag2_2026_04_16-15_35_07
+  # 单车道无运动
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk30/bag_recordings/rosbag2_2026_04_27-15_07_27
+  # 无车道两侧无运动
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk30/bag_recordings/rosbag2_2026_04_27-15_10_04
+  # 无车道两侧无运动2
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk30/bag_recordings/rosbag2_2026_04_27-15_13_22
+  # 连续多辆无运动
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk30/bag_recordings/rosbag2_2026_04_27-15_17_46
+  # 动态camera information
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk37/bag_recordings/rosbag2_2026_05_09-15_55_23
+  # 动静判断错误
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk28/bag_recordings/recording_20260603_185157
+  # 带车道信息动静判断错误1
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk28/bag_recordings/recording_20260604_155339
+  # 带车道信息动静判断错误2
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk28/bag_recordings/recording_20260604_155923
+  # 带车道信息运动车辆
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk29/bag_recordings/recording_20260605_171021
+  # 带车道信息运动车辆
+  default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk29/bag_recordings/recording_20260605_171202
+  # 带车道信息大数据量
+  # default_bag_path: ~/data/rosbags/imu_3d_lidar_full/mk29/bag_recordings/recording_20260605_172515
+
   # 深度相机_断裂
   # default_bag_path: ~/data/rosbags/depth_cam/rosbag2_2026_05_08-17_07_09
   # 深度相机_初始弯
   # default_bag_path: ~/data/rosbags/depth_cam/rosbag2_2026_05_22-10_25_32
   # 深度相机_拐弯
   # default_bag_path: ~/data/rosbags/depth_cam/rosbag2_2026_05_22-10_34_50
+  # 深度相机_室内墙
+  # default_bag_path: ~/data/rosbags/depth_cam/mk33/bag_recordings/recording_20260610_164928
+  # 深度相机_模拟
+  # default_bag_path: ~/data/rosbags/depth_cam/local/bag_recordings/recording_20260618_142152
+  
+  # 避车_调研
+  #default_bag_path: ~/data/rosbags/scan_avoid/rosbag2_2026_03_02-17_19_25
+  #
+  # 多深度相机
+  default_bag_path: ~/data/rosbags/depth_cam/mk30/recording_20260709_144118
+
   # 默认回放的 topics
   default_topics:
     - /tf
     - /tf_static
-      #- /lidar_car_points
+    - /intel_realsense_r200_depth/points
+    # - /lidar_car_points
     - /rgb_camera_front/compressed
     - /rgb_camera_back/compressed
     - /front_scan
@@ -38,6 +69,18 @@ rosbag:
     - /rgb_camera_front/camera_info
     - /rgb_camera_back/camera_info
     - /camera1/depth/points
+    - /imu/data
+    - /camera1/color/image_raw
+    - /camera1/depth/image_raw
+    - /camera1/depth/camera_info
+    - /camera2/color/image_raw
+    - /camera2/depth/image_raw
+    - /camera2/depth/camera_info
+    - /camera4/color/image_raw
+    - /camera4/depth/image_raw
+    - /camera4/depth/camera_info
+      #- /garage_polygons
+    # - /vanjee/lidar
   # 是否使用仿真时间
   use_sim_time: true
   # 是否发布 clock
@@ -45,7 +88,7 @@ rosbag:
   # 是否循环播放
   loop: true
   # 播放速率 (1.0 = 正常速度)
-  rate: 1.0
+  rate: 0.5
   # 播放起始时间偏移（秒）
   start_offset: 0.0
   # 启动时是否暂停

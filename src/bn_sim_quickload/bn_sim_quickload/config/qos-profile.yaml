@@ -23,36 +23,102 @@
 # 示例配置
 /rgb_camera_front/compressed:
   history: keep_last
-  depth: 3
+  depth: 1
   reliability: best_effort
   durability: volatile
 
 /rgb_camera_back/compressed:
   history: keep_last
-  depth: 10
+  depth: 1
   reliability: best_effort
   durability: volatile
 
 /rgb_camera_front/camera_info:
   history: keep_last
-  depth: 3
+  depth: 1
   reliability: best_effort
   durability: volatile
 
 /rgb_camera_back/camera_info:
   history: keep_last
-  depth: 3
+  depth: 1
   reliability: best_effort
   durability: volatile
 
 /front_scan:
   history: keep_last
-  depth: 5
+  depth: 1
   reliability: best_effort
   durability: volatile
 
 /back_scan:
   history: keep_last
-  depth: 5
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera1/depth/points:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/intel_realsense_r200_depth/points:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera1/color/image_raw:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera1/depth/image_raw:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera1/depth/camera_info:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera2/color/image_raw:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera2/depth/image_raw:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera2/depth/camera_info:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera4/color/image_raw:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera4/depth/image_raw:
+  history: keep_last
+  depth: 1
+  reliability: best_effort
+  durability: volatile
+
+/camera4/depth/camera_info:
+  history: keep_last
+  depth: 1
   reliability: best_effort
   durability: volatile
