@@ -1,0 +1,566 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="outdoor_cleaner">
+    <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+
+    <link name="base_footprint"/>
+
+    <link name="base_link">
+      <inertial>
+        <pose>0.235 0 0.20 0 0 0</pose>
+        <mass>100.0</mass>
+        <inertia>
+          <ixx>20.0</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>30.0</iyy><iyz>0.0</iyz>
+          <izz>40.0</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="base_collision">
+        <pose>0.235 0 0.20 0 0 0</pose>
+        <geometry>
+          <box><size>1.83 1.30 0.40</size></box>
+        </geometry>
+      </collision>
+
+      <visual name="base_visual">
+        <pose>0.235 0 0.20 0 0 0</pose>
+        <geometry>
+          <box><size>1.83 1.30 0.40</size></box>
+        </geometry>
+        <material>
+          <ambient>0.5 0.5 0.5 1.0</ambient>
+          <diffuse>0.5 0.5 0.5 1.0</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <link name="imu_link">
+      <sensor name="imu" type="imu">
+        <always_on>true</always_on>
+        <update_rate>200</update_rate>
+        <imu>
+          <angular_velocity>
+            <x><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+        <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+          <ros>
+            <remapping>~/out:=imu</remapping>
+          </ros>
+        </plugin>
+      </sensor>
+    </link>
+
+    <!-- Front 2D lidar -->
+    <link name="front_scan">
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.001</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.001</iyy><iyz>0.0</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="front_scan_collision">
+        <geometry>
+          <cylinder><radius>0.04</radius><length>0.06</length></cylinder>
+        </geometry>
+      </collision>
+
+      <visual name="front_scan_visual">
+        <geometry>
+          <cylinder><radius>0.04</radius><length>0.06</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>1.0 0.4 0.0 1.0</ambient>
+          <diffuse>1.0 0.4 0.0 1.0</diffuse>
+        </material>
+      </visual>
+
+      <sensor name="front_lidar" type="ray">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>720</samples>
+              <resolution>1.0</resolution>
+              <min_angle>0.0</min_angle>
+              <max_angle>6.283185</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>7.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="front_lidar_plugin" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <remapping>~/out:=front_scan</remapping>
+          </ros>
+          <output_type>sensor_msgs/LaserScan</output_type>
+          <frame_name>front_scan</frame_name>
+        </plugin>
+      </sensor>
+    </link>
+
+    <!-- Back 2D lidar -->
+    <link name="back_scan">
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.001</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.001</iyy><iyz>0.0</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="back_scan_collision">
+        <geometry>
+          <cylinder><radius>0.04</radius><length>0.06</length></cylinder>
+        </geometry>
+      </collision>
+
+      <visual name="back_scan_visual">
+        <geometry>
+          <cylinder><radius>0.04</radius><length>0.06</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>1.0 0.4 0.0 1.0</ambient>
+          <diffuse>1.0 0.4 0.0 1.0</diffuse>
+        </material>
+      </visual>
+
+      <sensor name="back_lidar" type="ray">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>720</samples>
+              <resolution>1.0</resolution>
+              <min_angle>0.0</min_angle>
+              <max_angle>6.283185</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>7.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="back_lidar_plugin" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <remapping>~/out:=back_scan</remapping>
+          </ros>
+          <output_type>sensor_msgs/LaserScan</output_type>
+          <frame_name>back_scan</frame_name>
+        </plugin>
+      </sensor>
+    </link>
+
+    <!-- Left drive wheel -->
+    <link name="wheel_left_link">
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>2.0</mass>
+        <inertia>
+          <ixx>0.01</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.01</iyy><iyz>0.0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="wheel_left_collision">
+        <pose>0 0 0 -1.5708 0 0</pose>
+        <geometry>
+          <cylinder><radius>0.10</radius><length>0.05</length></cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100000.0</mu>
+              <mu2>100000.0</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.0</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+5</kp>
+              <kd>1</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+
+      <visual name="wheel_left_visual">
+        <pose>0 0 0 1.5708 0 0</pose>
+        <geometry>
+          <cylinder><radius>0.10</radius><length>0.05</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>0.2 0.2 0.2 1.0</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <!-- Right drive wheel -->
+    <link name="wheel_right_link">
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>2.0</mass>
+        <inertia>
+          <ixx>0.01</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.01</iyy><iyz>0.0</iyz>
+          <izz>0.01</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="wheel_right_collision">
+        <pose>0 0 0 -1.5708 0 0</pose>
+        <geometry>
+          <cylinder><radius>0.10</radius><length>0.05</length></cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100000.0</mu>
+              <mu2>100000.0</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0.0</slip1>
+              <slip2>0.0</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+5</kp>
+              <kd>1</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+
+      <visual name="wheel_right_visual">
+        <pose>0 0 0 1.5708 0 0</pose>
+        <geometry>
+          <cylinder><radius>0.10</radius><length>0.05</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>0.2 0.2 0.2 1.0</ambient>
+          <diffuse>0.2 0.2 0.2 1.0</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <!-- Front caster -->
+    <link name="caster_front_link">
+      <pose>0.9 0 0.0 0 0 0</pose>
+      <inertial>
+        <mass>0.5</mass>
+        <inertia>
+          <ixx>0.001</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.001</iyy><iyz>0.0</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <surface>
+          <contact>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+5</kp>
+              <kd>1</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+    </link>
+
+    <!-- Rear caster -->
+    <link name="caster_back_link">
+      <pose>-0.4 0 0.0 0 0 0</pose>
+      <inertial>
+        <mass>0.5</mass>
+        <inertia>
+          <ixx>0.001</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.001</iyy><iyz>0.0</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry><sphere><radius>0.05</radius></sphere></geometry>
+        <surface>
+          <contact>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+5</kp>
+              <kd>1</kd>
+              <max_vel>0.01</max_vel>
+              <min_depth>0.001</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+    </link>
+
+    <!-- Camera -->
+    <link name="camera_link"/>
+
+    <link name="camera_rgb_optical_frame">
+      <pose>1.153 0 0.359 -1.57 0 -1.57</pose>
+      <inertial>
+        <mass>0.035</mass>
+        <inertia>
+          <ixx>0.001</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.001</iyy><iyz>0.0</iyz>
+          <izz>0.001</izz>
+        </inertia>
+      </inertial>
+      <sensor name="camera" type="camera">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>30</update_rate>
+        <camera name="front_camera">
+          <horizontal_fov>1.085595</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.03</near>
+            <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="camera_driver" filename="libgazebo_ros_camera.so">
+          <ros>
+            <remapping>image_raw:=/camera/image_raw</remapping>
+            <remapping>camera_info:=/camera/camera_info</remapping>
+          </ros>
+        </plugin>
+      </sensor>
+    </link>
+
+    <!-- Vanjee 3D lidar (VLP-16 style, publishes PointCloud2 on /vanjee/lidar) -->
+    <link name="vanjee_lidar">
+      <inertial>
+        <mass>0.83</mass>
+        <inertia>
+          <ixx>0.000908</ixx><ixy>0.0</ixy><ixz>0.0</ixz>
+          <iyy>0.000908</iyy><iyz>0.0</iyz>
+          <izz>0.001104</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <cylinder><radius>0.0516</radius><length>0.0717</length></cylinder>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+          <cylinder><radius>0.0516</radius><length>0.0717</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1.0</ambient>
+          <diffuse>0.1 0.1 0.1 1.0</diffuse>
+        </material>
+      </visual>
+
+      <sensor name="vanjee_lidar" type="ray">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>900</samples>
+              <resolution>1.0</resolution>
+              <min_angle>-3.14159265</min_angle>
+              <max_angle>3.14159265</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>16</samples>
+              <resolution>1.0</resolution>
+              <min_angle>-0.26179939</min_angle>
+              <max_angle>0.26179939</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.20</min>
+            <max>10.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+        <plugin name="vanjee_lidar_plugin" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <remapping>~/out:=/vanjee/lidar</remapping>
+          </ros>
+          <output_type>sensor_msgs/PointCloud2</output_type>
+          <frame_name>vanjee_lidar</frame_name>
+        </plugin>
+      </sensor>
+    </link>
+
+    <!-- Joints -->
+    <joint name="base_joint" type="fixed">
+      <parent>base_footprint</parent>
+      <child>base_link</child>
+      <pose>0.0 0.0 0.10 0 0 0</pose>
+    </joint>
+
+    <joint name="wheel_left_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>wheel_left_link</child>
+      <pose>0.0 0.211 0.0 -1.5708 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name="wheel_right_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>wheel_right_link</child>
+      <pose>0.0 -0.211 0.0 -1.5708 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name="caster_front_joint" type="ball">
+      <parent>base_link</parent>
+      <child>caster_front_link</child>
+    </joint>
+
+    <joint name="caster_back_joint" type="ball">
+      <parent>base_link</parent>
+      <child>caster_back_link</child>
+    </joint>
+
+    <joint name="imu_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>imu_link</child>
+      <pose>0.235 0 0.35 0 0 0</pose>
+    </joint>
+
+    <joint name="front_scan_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>front_scan</child>
+      <pose>1.0 0 0.45 0 0 0</pose>
+    </joint>
+
+    <joint name="back_scan_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>back_scan</child>
+      <pose>-0.6 0 0.45 0 0 3.14159265</pose>
+    </joint>
+
+    <joint name="vanjee_lidar_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>vanjee_lidar</child>
+      <pose>0.235 0 0.55 0 0 0</pose>
+    </joint>
+
+    <joint name="camera_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_link</child>
+      <pose>1.15 0 0.35 0 0 0</pose>
+    </joint>
+
+    <joint name="camera_rgb_joint" type="fixed">
+      <parent>camera_link</parent>
+      <child>camera_rgb_optical_frame</child>
+      <pose>0.003 0 0.009 0 0 0</pose>
+    </joint>
+
+    <!-- Differential drive plugin -->
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <ros>
+        <remapping>cmd_vel:=cmd_vel</remapping>
+        <remapping>odom:=odom</remapping>
+      </ros>
+      <update_rate>30</update_rate>
+
+      <left_joint>wheel_left_joint</left_joint>
+      <right_joint>wheel_right_joint</right_joint>
+
+      <wheel_separation>0.422</wheel_separation>
+      <wheel_diameter>0.20</wheel_diameter>
+
+      <max_wheel_torque>200</max_wheel_torque>
+      <max_wheel_acceleration>1.0</max_wheel_acceleration>
+
+      <command_topic>cmd_vel</command_topic>
+
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
+
+      <odometry_topic>odom</odometry_topic>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+    </plugin>
+
+    <!-- Joint state publisher -->
+    <plugin name="joint_state" filename="libgazebo_ros_joint_state_publisher.so">
+      <ros>
+        <remapping>~/out:=joint_states</remapping>
+      </ros>
+      <update_rate>30</update_rate>
+      <joint_name>wheel_left_joint</joint_name>
+      <joint_name>wheel_right_joint</joint_name>
+    </plugin>
+
+  </model>
+</sdf>
